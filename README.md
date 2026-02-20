@@ -4,6 +4,9 @@
 
 You've built an app on your machine. Now you need to get it on the internet — with a real URL, a database, and a way to push updates. This installs a slash command that walks you through setting up the tools that make that happen:
 
+- **Homebrew** — The Mac package manager. Almost everything else installs through it.
+- **Git** — Version control. Needed to push code to GitHub. Also makes sure your name and email are configured.
+- **Node.js** — The runtime that powers your app and most dev tools. Checks that you're on a modern version (18+).
 - **GitHub CLI** — Store and manage your code online. This lets you do it from the terminal instead of the website.
 - **Supabase CLI** — Supabase is your database, where the app stores user data. This lets you set up and change the database from your computer.
 - **Vercel CLI** — Vercel hosts the app on the internet. This lets you deploy and manage it from the terminal.

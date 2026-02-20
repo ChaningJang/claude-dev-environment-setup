@@ -1,5 +1,5 @@
 ---
-description: Set up dev environment — GitHub, Supabase, Vercel CLIs + Chrome DevTools MCP
+description: Set up dev environment — Homebrew, Git, Node.js, GitHub, Supabase, Vercel CLIs + Chrome DevTools MCP
 allowed-tools: [Bash, Read, Write, Edit, Glob, Grep, WebFetch, TodoWrite]
 ---
 
@@ -11,17 +11,78 @@ Walk the user through setting up the full development and deployment toolchain f
 
 The tools must be configured in this order because of dependencies:
 
-1. **GitHub CLI** (needed first — Vercel deploys from GitHub)
-2. **Supabase CLI** (independent, but needed for DB migrations)
-3. **Vercel CLI** (needs GitHub repo linked)
-4. **Chrome DevTools MCP** (independent, for browser debugging)
-5. **Environment variables** (.env.local for local dev, Vercel for production)
+1. **Homebrew** (package manager — needed to install everything else)
+2. **Git** (version control — needed for GitHub, comes with Xcode CLT)
+3. **Node.js** (runtime — needed for npm/npx, Vercel CLI, and running the app)
+4. **GitHub CLI** (needed first — Vercel deploys from GitHub)
+5. **Supabase CLI** (independent, but needed for DB migrations)
+6. **Vercel CLI** (needs GitHub repo linked)
+7. **Chrome DevTools MCP** (independent, for browser debugging)
+8. **Environment variables** (.env.local for local dev, Vercel for production)
 
 ## Step-by-Step Process
 
 For each tool below, first CHECK if it's already configured before asking the user to set it up. Run the diagnostic command, report the status, and only proceed with setup if needed. Use the TodoWrite tool to track progress through each step.
 
-### Step 1: GitHub CLI (`gh`)
+### Step 1: Homebrew
+
+**Check:**
+```bash
+brew --version
+```
+
+**If not installed:** Tell the user to run this in a separate terminal (it requires interactive input):
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+After install, they may need to add Homebrew to their PATH. On Apple Silicon Macs, the installer will print instructions — typically adding `eval "$(/opt/homebrew/bin/brew shellenv)"` to their shell profile.
+
+**Verify:** Run `brew --version` and confirm it returns a version number.
+
+### Step 2: Git
+
+**Check:**
+```bash
+git --version
+git config user.name
+git config user.email
+```
+
+**If not installed:** On macOS, running `git --version` will trigger the Xcode Command Line Tools installer automatically. Tell the user to accept the install prompt if it appears, then come back and confirm.
+
+Alternatively: `brew install git`
+
+**If not configured (no name/email):** Tell the user to set their identity — this is required for commits:
+```bash
+git config --global user.name "Their Name"
+git config --global user.email "their@email.com"
+```
+Ask the user what name and email to use.
+
+**Verify:** Run `git --version` and `git config user.name` to confirm both are set.
+
+### Step 3: Node.js
+
+**Check:**
+```bash
+node --version
+npm --version
+```
+
+**If not installed:** Tell the user to install via Homebrew:
+```bash
+brew install node
+```
+
+**If version is old (< 18):** Tell the user their Node version is outdated and modern frameworks (Next.js, etc.) require Node 18+. Upgrade with:
+```bash
+brew upgrade node
+```
+
+**Verify:** Run `node --version` and confirm it's 18 or higher.
+
+### Step 4: GitHub CLI (`gh`)
 
 **Check:**
 ```bash
@@ -38,7 +99,7 @@ gh auth status
 
 **Verify:** Run `gh auth status` and confirm authenticated user and repo access. Also verify the current project remote: `git remote -v`.
 
-### Step 2: Supabase CLI
+### Step 5: Supabase CLI
 
 **Check:**
 ```bash
@@ -66,7 +127,7 @@ curl -s -X POST "https://api.supabase.com/v1/projects/<ref>/database/query" \
   -d '{"query": "<SQL>"}'
 ```
 
-### Step 3: Vercel CLI
+### Step 6: Vercel CLI
 
 **Check:**
 ```bash
@@ -89,7 +150,7 @@ vercel whoami 2>&1
 
 **Verify:** Run `vercel whoami` and `vercel inspect` or `vercel ls` to confirm the project is linked.
 
-### Step 4: Chrome DevTools MCP
+### Step 7: Chrome DevTools MCP
 
 **Check:** Look for `chrome-devtools` in the MCP server configuration:
 ```bash
@@ -117,7 +178,7 @@ cat .mcp.json 2>/dev/null
 
 **Verify:** Try calling `mcp__chrome-devtools__list_pages` — if it works, Chrome DevTools MCP is connected.
 
-### Step 5: Environment Variables
+### Step 8: Environment Variables
 
 **Check .env.local exists and has required keys:**
 ```bash
@@ -128,7 +189,7 @@ grep -c "NEXT_PUBLIC_SUPABASE_URL\|NEXT_PUBLIC_SUPABASE_ANON_KEY\|SUPABASE_SERVI
 - `NEXT_PUBLIC_SUPABASE_URL` — From Supabase dashboard > Settings > API
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — From Supabase dashboard > Settings > API
 - `SUPABASE_SERVICE_ROLE_KEY` — From Supabase dashboard > Settings > API (keep secret!)
-- `SUPABASE_ACCESS_TOKEN` — The token from Step 2 (for CLI/API access)
+- `SUPABASE_ACCESS_TOKEN` — The token from Step 5 (for CLI/API access)
 
 **Required variables for Vercel production:**
 - `NEXT_PUBLIC_SUPABASE_URL`
@@ -146,6 +207,9 @@ vercel env ls 2>&1
 After all steps, run a comprehensive status check:
 
 ```
+Homebrew:  brew --version
+Git:       git --version && git config user.name
+Node.js:   node --version (should be 18+)
 GitHub:    gh auth status
 Supabase:  supabase projects list (with token)
 Vercel:    vercel whoami
