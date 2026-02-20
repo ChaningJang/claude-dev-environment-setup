@@ -1,6 +1,15 @@
 # Dev Environment Setup — Claude Code Plugin
 
-A Claude Code plugin that helps you set up and troubleshoot your full dev toolchain: **GitHub CLI**, **Supabase CLI**, **Vercel CLI**, and **Chrome DevTools MCP**.
+## What is this?
+
+You've built an app on your machine. Now you need to get it on the internet — with a real URL, a database, and a way to push updates. This plugin sets up the tools that make that happen:
+
+- **GitHub CLI** — Store and manage your code online. This lets you do it from the terminal instead of the website.
+- **Supabase CLI** — Supabase is your database, where the app stores user data. This lets you set up and change the database from your computer.
+- **Vercel CLI** — Vercel hosts the app on the internet. This lets you deploy and manage it from the terminal.
+- **Chrome DevTools MCP** — Lets Claude open a browser and look at your app directly. It can spot errors, read console logs, and take screenshots without you having to describe the problem.
+
+It assumes you already have code and a coding tool (Claude Code, Cursor, etc.). This gets you the infrastructure around it.
 
 ## Install
 
