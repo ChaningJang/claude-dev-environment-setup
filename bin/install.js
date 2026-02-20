@@ -1,73 +1,47 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+const { execSync } = require('child_process');
 
-const HOME = require('os').homedir();
-const PLUGIN_DIR = path.join(HOME, '.claude', 'plugins', 'dev-environment-setup');
-const REGISTRY_FILE = path.join(HOME, '.claude', 'plugins', 'installed_plugins.json');
+const MARKETPLACE = 'ChaningJang/claude-dev-environment-setup';
+const PLUGIN = 'dev-environment-setup';
 
-// Files to copy (relative to this package)
-const FILES = [
-  '.claude-plugin/plugin.json',
-  'commands/dev-environment-setup.md',
-  'skills/environment-check/SKILL.md',
-];
-
-function registerPlugin() {
-  let registry = { version: 2, plugins: {} };
-
-  if (fs.existsSync(REGISTRY_FILE)) {
-    try {
-      registry = JSON.parse(fs.readFileSync(REGISTRY_FILE, 'utf8'));
-    } catch {
-      // Corrupted file, start fresh
-    }
+function run(cmd) {
+  try {
+    return execSync(cmd, { encoding: 'utf8', env: { ...process.env, CLAUDECODE: '' } }).trim();
+  } catch (e) {
+    return e.stderr || e.stdout || '';
   }
-
-  registry.plugins['dev-environment-setup'] = {
-    name: 'dev-environment-setup',
-    installPath: PLUGIN_DIR,
-    scope: 'user',
-    version: '1.0.2',
-  };
-
-  fs.writeFileSync(REGISTRY_FILE, JSON.stringify(registry, null, 2) + '\n');
 }
 
 function main() {
-  const alreadyInstalled = fs.existsSync(path.join(PLUGIN_DIR, '.claude-plugin', 'plugin.json'));
+  // Check if claude CLI exists
+  const claudeVersion = run('claude --version');
+  if (!claudeVersion || claudeVersion.includes('not found')) {
+    console.error('Claude Code is not installed. Install it at https://claude.ai/claude-code');
+    process.exit(1);
+  }
 
-  if (alreadyInstalled) {
-    console.log('Plugin is already installed. Updating files...\n');
+  console.log('Setting up dev-environment-setup plugin for Claude Code...\n');
+
+  // Add marketplace
+  console.log('  Adding plugin marketplace...');
+  const addResult = run(`claude plugin marketplace add ${MARKETPLACE}`);
+  if (addResult.includes('already')) {
+    console.log('  Marketplace already added.');
   } else {
-    console.log('Installing Claude Code dev-environment-setup plugin...\n');
+    console.log('  Marketplace added.');
   }
 
-  // The package root is one level up from bin/
-  const packageRoot = path.join(__dirname, '..');
-
-  // Copy plugin files
-  for (const file of FILES) {
-    const src = path.join(packageRoot, file);
-    const dest = path.join(PLUGIN_DIR, file);
-    const destDir = path.dirname(dest);
-
-    if (!fs.existsSync(src)) {
-      console.error(`  Missing file: ${file}`);
-      process.exit(1);
-    }
-
-    fs.mkdirSync(destDir, { recursive: true });
-    fs.copyFileSync(src, dest);
-    console.log(`  Copied ${file}`);
+  // Install plugin
+  console.log('  Installing plugin...');
+  const installResult = run(`claude plugin install ${PLUGIN}`);
+  if (installResult.includes('already installed')) {
+    console.log('  Plugin already installed.');
+  } else {
+    console.log('  Plugin installed.');
   }
 
-  // Register with Claude Code
-  registerPlugin();
-  console.log('  Registered plugin with Claude Code');
-
-  console.log(`\nDone! Restart Claude Code, then type /dev-environment-setup to get started.`);
+  console.log('\nDone! Restart Claude Code, then type /dev-environment-setup to get started.');
 }
 
 main();
