@@ -13,19 +13,14 @@ It assumes you already have code and a coding tool (Claude Code, Cursor, etc.). 
 
 ## Prerequisites
 
-Before you install this plugin, you need two things:
-
-1. **Claude Code** — the AI coding tool that runs in your terminal. Install it at [claude.ai/claude-code](https://claude.ai/claude-code). (This also installs Node.js if you don't have it.)
-2. **Git** — most Macs have this already. Open Terminal and type `git --version`. If it's not installed, your Mac will prompt you to install Xcode Command Line Tools — say yes.
-
-That's it. This plugin handles everything else.
+You just need **Claude Code** installed — the AI coding tool that runs in your terminal. Install it at [claude.ai/claude-code](https://claude.ai/claude-code). That's it. This plugin handles everything else.
 
 ## Install
 
 Open Terminal and run:
 
 ```bash
-git clone https://github.com/ChaningJang/claude-dev-environment-setup.git ~/.claude/plugins/dev-environment-setup
+npx claude-dev-environment-setup
 ```
 
 Then **restart Claude Code**.

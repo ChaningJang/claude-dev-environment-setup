@@ -1,0 +1,15 @@
+{
+  "name": "claude-dev-environment-setup",
+  "version": "1.0.0",
+  "description": "Claude Code plugin that sets up GitHub CLI, Supabase CLI, Vercel CLI, and Chrome DevTools MCP",
+  "bin": {
+    "claude-dev-environment-setup": "bin/install.js"
+  },
+  "author": "Chaning Jang <chaning@irrationallabs.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ChaningJang/claude-dev-environment-setup.git"
+  },
+  "keywords": ["claude", "claude-code", "plugin", "dev-environment", "supabase", "vercel", "github"]
+}
