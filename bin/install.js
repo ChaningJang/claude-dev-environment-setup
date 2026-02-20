@@ -1,47 +1,40 @@
 #!/usr/bin/env node
 
 const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
-const MARKETPLACE = 'ChaningJang/claude-dev-environment-setup';
-const PLUGIN = 'dev-environment-setup';
-
-function run(cmd) {
-  try {
-    return execSync(cmd, { encoding: 'utf8', env: { ...process.env, CLAUDECODE: '' } }).trim();
-  } catch (e) {
-    return e.stderr || e.stdout || '';
-  }
-}
+const COMMAND_FILE = 'dev-environment-setup.md';
 
 function main() {
   // Check if claude CLI exists
-  const claudeVersion = run('claude --version');
-  if (!claudeVersion || claudeVersion.includes('not found')) {
+  try {
+    execSync('claude --version', { encoding: 'utf8', stdio: 'pipe' });
+  } catch {
     console.error('Claude Code is not installed. Install it at https://claude.ai/claude-code');
     process.exit(1);
   }
 
-  console.log('Setting up dev-environment-setup plugin for Claude Code...\n');
+  const homeDir = process.env.HOME || process.env.USERPROFILE;
+  const commandsDir = path.join(homeDir, '.claude', 'commands');
+  const source = path.join(__dirname, '..', 'commands', COMMAND_FILE);
+  const dest = path.join(commandsDir, COMMAND_FILE);
 
-  // Add marketplace
-  console.log('  Adding plugin marketplace...');
-  const addResult = run(`claude plugin marketplace add ${MARKETPLACE}`);
-  if (addResult.includes('already')) {
-    console.log('  Marketplace already added.');
-  } else {
-    console.log('  Marketplace added.');
+  // Ensure source file exists
+  if (!fs.existsSync(source)) {
+    console.error(`Source command file not found: ${source}`);
+    process.exit(1);
   }
 
-  // Install plugin
-  console.log('  Installing plugin...');
-  const installResult = run(`claude plugin install ${PLUGIN}`);
-  if (installResult.includes('already installed')) {
-    console.log('  Plugin already installed.');
-  } else {
-    console.log('  Plugin installed.');
-  }
+  // Create ~/.claude/commands/ if it doesn't exist
+  fs.mkdirSync(commandsDir, { recursive: true });
 
-  console.log('\nDone! Restart Claude Code, then type /dev-environment-setup to get started.');
+  // Copy the slash command file
+  fs.copyFileSync(source, dest);
+
+  console.log('Installed /dev-environment-setup slash command for Claude Code.\n');
+  console.log(`  Copied to: ${dest}\n`);
+  console.log('Type /dev-environment-setup in Claude Code to get started.');
 }
 
 main();

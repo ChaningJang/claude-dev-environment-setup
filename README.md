@@ -1,8 +1,8 @@
-# Dev Environment Setup — Claude Code Plugin
+# Dev Environment Setup for Claude Code
 
 ## What is this?
 
-You've built an app on your machine. Now you need to get it on the internet — with a real URL, a database, and a way to push updates. This plugin sets up the tools that make that happen:
+You've built an app on your machine. Now you need to get it on the internet — with a real URL, a database, and a way to push updates. This installs a slash command that walks you through setting up the tools that make that happen:
 
 - **GitHub CLI** — Store and manage your code online. This lets you do it from the terminal instead of the website.
 - **Supabase CLI** — Supabase is your database, where the app stores user data. This lets you set up and change the database from your computer.
@@ -13,7 +13,7 @@ It assumes you already have code and a coding tool (Claude Code, Cursor, etc.). 
 
 ## Prerequisites
 
-You just need **Claude Code** installed — the AI coding tool that runs in your terminal. Install it at [claude.ai/claude-code](https://claude.ai/claude-code). That's it. This plugin handles everything else.
+You just need **Claude Code** installed — the AI coding tool that runs in your terminal. Install it at [claude.ai/claude-code](https://claude.ai/claude-code). That's it.
 
 ## Install
 
@@ -23,7 +23,7 @@ Open Terminal and run:
 npx claude-dev-environment-setup
 ```
 
-Then **restart Claude Code**.
+That's it — no restart needed.
 
 ## Usage
 
@@ -33,4 +33,4 @@ Type `/dev-environment-setup` in Claude Code. It will:
 2. Walk you through installing and logging into anything that's missing
 3. Verify everything works at the end
 
-If something breaks later (like an expired login), Claude will automatically detect the issue and help you fix it.
+If something breaks later (like an expired login), just run `/dev-environment-setup` again to diagnose and fix it.
