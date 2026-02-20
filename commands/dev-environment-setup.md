@@ -180,27 +180,24 @@ cat .mcp.json 2>/dev/null
 
 ### Step 8: Environment Variables
 
-**Check .env.local exists and has required keys:**
-```bash
-grep -c "NEXT_PUBLIC_SUPABASE_URL\|NEXT_PUBLIC_SUPABASE_ANON_KEY\|SUPABASE_SERVICE_ROLE_KEY" .env.local
-```
+**Only run this step if the project clearly uses environment variables** (e.g., has a `.env.example`, `.env.local.example`, or references `process.env` in the code). Do not proactively ask the user for keys or tokens — only flag what's missing if the project expects them.
 
-**Required variables for local dev (.env.local):**
-- `NEXT_PUBLIC_SUPABASE_URL` — From Supabase dashboard > Settings > API
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — From Supabase dashboard > Settings > API
-- `SUPABASE_SERVICE_ROLE_KEY` — From Supabase dashboard > Settings > API (keep secret!)
-- `SUPABASE_ACCESS_TOKEN` — The token from Step 5 (for CLI/API access)
+**Discover what's needed:**
+1. Check if `.env.example` or `.env.local.example` exists — if so, compare against `.env.local` to find missing keys
+2. If no example file exists, search the codebase for `process.env.` references to identify expected variables
+3. Check if `.env.local` already exists and has values filled in
 
-**Required variables for Vercel production:**
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+**If variables are missing:**
+- List the variable names that are missing (not their values)
+- If you can tell where a value comes from (e.g., a Supabase URL, a Stripe key), mention the dashboard or docs where the user can find it
+- Ask the user if they'd like help filling them in — don't assume they want to do it right now
+- Never display or log secret values — just confirm they exist
 
-Tell the user which variables are missing and where to find them. Never display secret values — just confirm they exist.
-
-**Verify Vercel env vars:** If Vercel CLI is linked, check:
+**If Vercel CLI is linked**, also check production env vars:
 ```bash
 vercel env ls 2>&1
 ```
+Mention any keys that exist locally but aren't set on Vercel, in case the user wants to sync them.
 
 ## Final Verification
 
@@ -214,7 +211,7 @@ GitHub:    gh auth status
 Supabase:  supabase projects list (with token)
 Vercel:    vercel whoami
 MCP:       list_pages (Chrome DevTools)
-Env:       .env.local keys present
+Env:       .env.local vs .env.example (if applicable)
 ```
 
 Present a summary table showing each tool's status (configured/not configured) and any remaining action items.
