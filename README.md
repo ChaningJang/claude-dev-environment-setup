@@ -13,13 +13,7 @@ It assumes you already have code and a coding tool (Claude Code, Cursor, etc.). 
 
 ## Install
 
-Run this in your terminal:
-
-```bash
-claude plugin add /path/to/dev-environment-setup
-```
-
-Or clone and install:
+Clone the plugin into your Claude Code plugins directory:
 
 ```bash
 git clone https://github.com/ChaningJang/claude-dev-environment-setup.git ~/.claude/plugins/dev-environment-setup
