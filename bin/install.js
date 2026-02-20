@@ -13,7 +13,13 @@ const FILES = [
 ];
 
 function main() {
-  console.log('Installing Claude Code dev-environment-setup plugin...\n');
+  const alreadyInstalled = fs.existsSync(path.join(PLUGIN_DIR, '.claude-plugin', 'plugin.json'));
+
+  if (alreadyInstalled) {
+    console.log('Plugin is already installed. Updating files...\n');
+  } else {
+    console.log('Installing Claude Code dev-environment-setup plugin...\n');
+  }
 
   // The package root is one level up from bin/
   const packageRoot = path.join(__dirname, '..');

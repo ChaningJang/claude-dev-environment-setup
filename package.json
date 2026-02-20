@@ -1,6 +1,6 @@
 {
   "name": "claude-dev-environment-setup",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Claude Code plugin that sets up GitHub CLI, Supabase CLI, Vercel CLI, and Chrome DevTools MCP",
   "bin": {
     "claude-dev-environment-setup": "bin/install.js"
