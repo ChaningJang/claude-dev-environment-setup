@@ -27,7 +27,7 @@ Then **restart Claude Code**.
 
 ## Usage
 
-Type `/setup-project` in Claude Code. It will:
+Type `/dev-environment-setup` in Claude Code. It will:
 
 1. Check which tools you already have
 2. Walk you through installing and logging into anything that's missing

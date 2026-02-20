@@ -53,7 +53,7 @@ Recognize these failure signatures and respond with the appropriate fix:
 3. Give the minimal steps to fix it (prefer the shortest path)
 4. For browser-based auth flows, tell the user to use a separate terminal
 5. After the user confirms they've completed the step, verify with a test command
-6. If the user mentions `/setup-project`, suggest they run that command for a full environment audit
+6. If the user mentions `/dev-environment-setup`, suggest they run that command for a full environment audit
 
 ## Non-TTY Constraints
 
