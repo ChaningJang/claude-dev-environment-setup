@@ -1,0 +1,8 @@
+{
+  "name": "dev-environment-setup",
+  "description": "Detects missing CLI tools and guides users through GitHub, Supabase, Vercel, and Chrome DevTools MCP setup",
+  "author": {
+    "name": "Chaning Jang",
+    "email": "chaning@irrationallabs.com"
+  }
+}
