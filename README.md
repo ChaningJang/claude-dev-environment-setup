@@ -11,9 +11,18 @@ You've built an app on your machine. Now you need to get it on the internet — 
 
 It assumes you already have code and a coding tool (Claude Code, Cursor, etc.). This gets you the infrastructure around it.
 
+## Prerequisites
+
+Before you install this plugin, you need two things:
+
+1. **Claude Code** — the AI coding tool that runs in your terminal. Install it at [claude.ai/claude-code](https://claude.ai/claude-code). (This also installs Node.js if you don't have it.)
+2. **Git** — most Macs have this already. Open Terminal and type `git --version`. If it's not installed, your Mac will prompt you to install Xcode Command Line Tools — say yes.
+
+That's it. This plugin handles everything else.
+
 ## Install
 
-Clone the plugin into your Claude Code plugins directory:
+Open Terminal and run:
 
 ```bash
 git clone https://github.com/ChaningJang/claude-dev-environment-setup.git ~/.claude/plugins/dev-environment-setup
@@ -21,31 +30,12 @@ git clone https://github.com/ChaningJang/claude-dev-environment-setup.git ~/.cla
 
 Then **restart Claude Code**.
 
-## What's Included
+## Usage
 
-### `/setup-project` command
+Type `/setup-project` in Claude Code. It will:
 
-Type `/setup-project` in Claude Code to run a guided setup that:
+1. Check which tools you already have
+2. Walk you through installing and logging into anything that's missing
+3. Verify everything works at the end
 
-1. Checks which tools are already configured
-2. Walks you through setting up anything that's missing
-3. Handles the non-interactive (non-TTY) constraints of Claude Code
-4. Verifies everything works at the end
-
-### Auto-detection skill
-
-When Claude encounters errors like "access token not provided" or "not logged in" during normal work, it automatically recognizes the issue and guides you through the fix — instead of just failing.
-
-## Tools Covered
-
-| Tool | What it enables |
-|------|----------------|
-| **GitHub CLI** (`gh`) | Push code, create PRs, manage issues |
-| **Supabase CLI** | Run database migrations, manage project |
-| **Vercel CLI** | Deploy, manage env vars, check builds |
-| **Chrome DevTools MCP** | Debug in browser — screenshots, console, network |
-
-## Requirements
-
-- [Claude Code](https://claude.ai/claude-code) installed
-- macOS (uses Homebrew for CLI installs)
+If something breaks later (like an expired login), Claude will automatically detect the issue and help you fix it.
