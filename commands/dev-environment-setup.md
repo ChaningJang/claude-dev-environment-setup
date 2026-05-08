@@ -1,11 +1,11 @@
 ---
-description: Set up dev environment — Homebrew, Git, Node.js, GitHub, Supabase, Vercel CLIs + Chrome DevTools MCP
+description: Set up dev environment — Homebrew, Git, Node.js, GitHub, Supabase, Vercel, Netlify CLIs + Chrome DevTools MCP
 allowed-tools: [Bash, Read, Write, Edit, Glob, Grep, WebFetch, TodoWrite]
 ---
 
 # Project Environment Setup
 
-You are helping a user who has an app running locally and wants to get it on the internet. They may be completely new to deployment — don't assume they have accounts on GitHub, Supabase, or Vercel, or that they know what tokens and API keys are.
+You are helping a user who has an app running locally and wants to get it on the internet. They may be completely new to deployment — don't assume they have accounts on GitHub, Supabase, Vercel, or Netlify, or that they know what tokens and API keys are.
 
 ## How to Run This Walkthrough
 
@@ -53,7 +53,7 @@ git config --global user.email "their@email.com"
 
 ## Phase 2: Getting Your Code on GitHub
 
-This is the first service that needs an account. Explain why: "GitHub stores your code online. Vercel (which puts your app on the internet) will pull from GitHub to deploy. So we need this set up first."
+This is the first service that needs an account. Explain why: "GitHub stores your code online. Hosts like Vercel and Netlify pull from GitHub to deploy. So we need this set up first."
 
 ### GitHub CLI (`gh`)
 
@@ -83,13 +83,29 @@ Ask the user if they want the repo to be public or private.
 
 **Verify:** `gh auth status` shows authenticated. `git remote -v` shows a GitHub URL.
 
-## Phase 3: Do You Need a Database?
+## Phase 3: Pick Your Stack
 
-Before setting up Supabase, ask: **"Does your app use a database? If you're using Supabase (or want to), I can help set that up. If not, we can skip this."**
+Before going further, ask the user two questions so the rest of the walkthrough only covers what they need:
 
-Check the project for clues — look for `supabase` in `package.json` dependencies, a `supabase/` directory, or references to `SUPABASE` in the code. If there are clear signs, mention them: "It looks like your project uses Supabase — want to set that up?"
+**Question 1 — Hosting:** "Where do you want to put your app on the internet?"
+1. **Vercel** — most popular for Next.js / React apps; tight GitHub integration
+2. **Netlify** — popular for static sites and Jamstack; similar GitHub-driven deploys
+3. **Both** — set up both (some teams use one for previews, the other for production)
+4. **Skip** — don't deploy yet
 
-### Supabase CLI (only if the user opts in)
+**Question 2 — Database:** "Does your app use a database?"
+- If you're using **Supabase** (Postgres + auth + storage), I'll walk through it.
+- If you're using something else or no database at all, we'll skip this section.
+
+Look at the project for clues before asking — `supabase` in `package.json`, a `supabase/` directory, references to `SUPABASE_*` env vars, or `netlify.toml` / `vercel.json` files. Mention what you found: "I see a `netlify.toml` in your repo — looks like you're already on Netlify."
+
+Use the answers to decide which of the next phases to run.
+
+## Phase 4: Database (Supabase)
+
+Skip this phase if the user said no database in Phase 3.
+
+### Supabase CLI
 
 **Check:** `supabase --version`
 
@@ -102,31 +118,38 @@ Check the project for clues — look for `supabase` in `package.json` dependenci
    - Go to https://supabase.com/dashboard/account/tokens
    - Click "Generate new token", name it "Claude Code"
    - Copy the token (starts with `sbp_`)
-   - Share it here — it will be stored in `.env.local` (which is gitignored, so it stays private)
 
-**Store the token:** Add `SUPABASE_ACCESS_TOKEN=sbp_...` to `.env.local`. Create the file if it doesn't exist. Make sure `.env.local` is in `.gitignore`.
+**Store the token without pasting it in chat.** Chat transcripts persist on disk, so a freshly-issued token shouldn't be pasted into the conversation. Instead, tell the user to run this in their own terminal in the project directory, replacing `PASTE_TOKEN_HERE`:
+```bash
+printf 'SUPABASE_ACCESS_TOKEN=%s\n' 'PASTE_TOKEN_HERE' >> .env.local
+```
+Then make sure `.env.local` is gitignored (`grep -q '^\.env\.local$' .gitignore || echo '.env.local' >> .gitignore`). Have the user reply "done" when finished.
 
 **Get the project keys:** The app also needs connection details. Tell the user:
 - Go to the Supabase dashboard > your project > Settings > API
 - You need: the **Project URL** and the **anon (public) key**
 - If the app uses server-side operations, also grab the **service_role key**
 
-Store these in `.env.local`:
+For the keys (which are less sensitive than the personal access token but still secrets), tell the user to add them to `.env.local` themselves:
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...  (only if needed)
 ```
 
-**Verify:** Run `supabase projects list` with the token and confirm their project appears.
+**Verify:** Load the token from `.env.local` and confirm the project appears, without ever printing the token:
+```bash
+set -a; source .env.local; set +a
+supabase projects list 2>&1 | head -5
+```
 
-## Phase 4: Publishing to the Web with Vercel
+## Phase 5: Hosting
+
+Run **only the branch(es)** the user picked in Phase 3. If they picked "Both", run 5a then 5b.
+
+### Phase 5a: Vercel
 
 Explain: "Vercel is what puts your app on the internet. It connects to your GitHub repo and automatically deploys whenever you push code. It gives you a URL like yourapp.vercel.app."
-
-Ask: **"Want to set up Vercel so your app is live on the web?"**
-
-### Vercel CLI (only if the user opts in)
 
 **Check:** `vercel --version` and `vercel whoami`
 
@@ -155,7 +178,57 @@ This connects the local project to Vercel. If they haven't created a Vercel proj
 
 **Verify:** `vercel whoami` shows their username. `vercel ls` shows the project.
 
-## Phase 5: Browser Debugging (Chrome DevTools MCP)
+### Phase 5b: Netlify
+
+Explain: "Netlify hosts your app on the internet, similar to Vercel. It connects to your GitHub repo and deploys automatically on every push, giving you a URL like yourapp.netlify.app."
+
+**Check:** `netlify --version`
+
+**If not installed:**
+```bash
+npm i -g netlify-cli
+```
+If that errors with a permissions issue or installs to a non-PATH directory, retry with an explicit Homebrew prefix (this can happen when an editor like Zed overrides the npm global location):
+```bash
+npm i -g --prefix=/opt/homebrew netlify-cli
+```
+
+**If they don't have a Netlify account:**
+1. Tell them to go to https://app.netlify.com/signup — signing up with GitHub makes connecting repos easier.
+2. Wait for confirmation.
+
+**Get a Personal Access Token (so Claude Code can run headlessly):**
+1. Tell them to open https://app.netlify.com/user/applications#personal-access-tokens
+2. Click "New access token", name it "Claude Code", copy the token (starts with `nfp_`)
+
+**Store the token without pasting it in chat.** Chat transcripts persist on disk, so a freshly-issued token shouldn't be pasted into the conversation. Tell the user to run this in their own terminal, replacing `PASTE_TOKEN_HERE`:
+```bash
+printf 'NETLIFY_AUTH_TOKEN=%s\n' 'PASTE_TOKEN_HERE' >> .env.local
+```
+And make sure `.env.local` is gitignored. Have the user reply "done" when finished.
+
+**Verify the token works without ever reading its value:**
+```bash
+set -a; source .env.local; set +a
+curl -s -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" https://api.netlify.com/api/v1/user
+netlify sites:list --json 2>&1 | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d), 'sites visible')"
+```
+A 200 plus a site count means the token is good.
+
+**To connect the project (analogous to `vercel link`):** Tell them to run in a separate terminal, from the project directory:
+```
+netlify link
+```
+This writes `.netlify/state.json` linking the local repo to a Netlify site. If they haven't created a Netlify site yet, run `netlify init` instead — it will create one and connect it to the GitHub repo.
+
+**Set up environment variables on Netlify:** If `.env.local` has keys the production app needs (e.g. Supabase URL/anon), set them on Netlify too:
+- Dashboard: https://app.netlify.com > Site > Site configuration > Environment variables
+- Or CLI: `netlify env:set NEXT_PUBLIC_SUPABASE_URL https://xxxxx.supabase.co`
+- Don't push secrets like `SUPABASE_SERVICE_ROLE_KEY` unless server-side functions need them.
+
+**Verify:** `netlify status` shows the linked site. `netlify env:list` shows the configured variables.
+
+## Phase 6: Browser Debugging (Chrome DevTools MCP)
 
 Explain: "This lets Claude open a browser and look at your app directly — to spot visual bugs, read console errors, and take screenshots. It's optional but really helpful for debugging."
 
@@ -185,7 +258,7 @@ cat .mcp.json 2>/dev/null | grep "chrome-devtools"
 
 **Verify:** After restart, try `mcp__chrome-devtools__list_pages`.
 
-## Phase 6: Environment Variables Check
+## Phase 7: Environment Variables Check
 
 **Only run this if earlier steps didn't already cover it.** Check if the project has a `.env.example` or `.env.local.example` file. If so, compare it against `.env.local` and flag any missing keys. If there's no example file, search for `process.env.` in the code.
 
@@ -194,7 +267,7 @@ If anything is missing:
 - If you can tell where a value comes from, say where to find it
 - Ask if they want help filling them in now or later
 
-If Vercel is linked, also run `vercel env ls` and mention any local keys that aren't set in production.
+If Vercel is linked, also run `vercel env ls` and mention any local keys that aren't set in production. If Netlify is linked, run `netlify env:list` for the same.
 
 ## Final Summary
 
@@ -207,6 +280,7 @@ Node.js:       node --version (18+)
 GitHub:        gh auth status + remote
 Supabase:      supabase projects list (if applicable)
 Vercel:        vercel whoami (if applicable)
+Netlify:       netlify status (if applicable)
 Chrome MCP:    .mcp.json configured (if applicable)
 Env vars:      .env.local complete (if applicable)
 ```
@@ -215,9 +289,10 @@ Show a clear table with status for each. Mark skipped items as "skipped" not "mi
 
 ## Important Notes
 
-- Never display or log secret keys, tokens, or passwords
-- If a tool requires interactive input (OAuth, login), tell the user to run it in a separate terminal — Claude Code is non-TTY
-- Store tokens in `.env.local` (make sure it's gitignored)
-- After any MCP config changes, remind the user to restart Claude Code
-- Let the user skip anything they don't need — not every project uses Supabase or needs Chrome DevTools
-- Keep explanations simple and jargon-free — assume the user is new to all of this
+- **Never have the user paste a freshly-issued token into chat.** Chat transcripts are written to disk; a token in the transcript should be considered exposed and rotated. Always have them write the token directly to `.env.local` from their own terminal using the `printf ... >> .env.local` pattern.
+- Never display, log, or `cat` secret keys, tokens, or passwords. Verify by hitting an authenticated endpoint and checking the response, not by printing the secret.
+- If a tool requires interactive input (OAuth, login), tell the user to run it in a separate terminal — Claude Code is non-TTY.
+- Make sure `.env.local` is gitignored before writing secrets to it.
+- After any MCP config changes, remind the user to restart Claude Code.
+- Let the user skip anything they don't need — not every project uses Supabase, needs both hosts, or wants Chrome DevTools.
+- Keep explanations simple and jargon-free — assume the user is new to all of this.

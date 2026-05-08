@@ -1,7 +1,7 @@
 ---
 name: environment-check
-description: This skill should be used when Claude encounters an authentication error, "not logged in", "access token not provided", "not authenticated", permission denied from GitHub CLI, Supabase CLI, or Vercel CLI, or when a tool fails due to missing configuration. Also use when the user asks to "check my setup", "verify my tools", "what's configured", or "diagnose environment".
-version: 1.0.0
+description: This skill should be used when Claude encounters an authentication error, "not logged in", "access token not provided", "not authenticated", permission denied from GitHub CLI, Supabase CLI, Vercel CLI, or Netlify CLI, or when a tool fails due to missing configuration. Also use when the user asks to "check my setup", "verify my tools", "what's configured", or "diagnose environment".
+version: 1.1.0
 ---
 
 # Environment Check & Recovery
@@ -20,8 +20,8 @@ Recognize these failure signatures and respond with the appropriate fix:
 ### Supabase CLI
 - **"Access token not provided"** or **"Supply an access token"**
 - Fix: User needs a personal access token from https://supabase.com/dashboard/account/tokens
-- Store as `SUPABASE_ACCESS_TOKEN` in `.env.local`
-- Use with: `SUPABASE_ACCESS_TOKEN=<token> supabase <command>`
+- Store as `SUPABASE_ACCESS_TOKEN` in `.env.local` (have the user write it from their own terminal — don't ask them to paste the token in chat)
+- Use with: `set -a; source .env.local; set +a` then any `supabase` command
 - Alternative for raw SQL: Use the Management API directly:
   ```
   curl -X POST "https://api.supabase.com/v1/projects/<ref>/database/query"
@@ -33,6 +33,20 @@ Recognize these failure signatures and respond with the appropriate fix:
 - **"not logged in"** or **"No credentials found"**
 - Fix: User must run `vercel login` in a separate terminal
 - After login, may need `vercel link` to connect to the project
+
+### Netlify CLI
+- **"Not logged in"**, **"You are not logged in"**, or **"Authentication required"**
+- Fix: User needs a personal access token from https://app.netlify.com/user/applications#personal-access-tokens
+- Store as `NETLIFY_AUTH_TOKEN` in `.env.local` (have the user write it from their own terminal — don't ask them to paste the token in chat). Example:
+  ```bash
+  printf 'NETLIFY_AUTH_TOKEN=%s\n' 'PASTE_TOKEN_HERE' >> .env.local
+  ```
+- Load with `set -a; source .env.local; set +a` before running any `netlify` command. The CLI auto-detects `NETLIFY_AUTH_TOKEN`.
+- For project linking: `netlify link` (in a separate terminal) writes `.netlify/state.json`. If the site doesn't exist yet, `netlify init` creates one and connects it to the GitHub repo.
+- Alternative for raw API calls:
+  ```
+  curl -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" https://api.netlify.com/api/v1/<endpoint>
+  ```
 
 ### Chrome DevTools MCP
 - **MCP tools not available** or **connection refused**
@@ -62,3 +76,4 @@ Claude Code runs in a non-TTY environment. This means:
 - OAuth browser flows must be done by the user in a separate terminal
 - Tokens/keys should be passed via environment variables or flags, not interactive input
 - Always check for env vars in `.env.local` before asking the user for credentials
+- Never have the user paste a freshly-issued token into chat — chat transcripts persist on disk. Always have them write the token directly to `.env.local` from their own terminal.

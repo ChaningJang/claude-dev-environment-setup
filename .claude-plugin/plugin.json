@@ -1,7 +1,7 @@
 {
   "name": "dev-environment-setup",
-  "description": "Detects missing CLI tools and guides users through GitHub, Supabase, Vercel, and Chrome DevTools MCP setup",
-  "version": "1.0.2",
+  "description": "Detects missing CLI tools and guides users through GitHub, Supabase, Vercel, Netlify, and Chrome DevTools MCP setup",
+  "version": "1.1.0",
   "author": {
     "name": "Chaning Jang",
     "email": "chaning@irrationallabs.com"

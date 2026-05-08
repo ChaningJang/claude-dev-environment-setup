@@ -10,6 +10,7 @@ You've built an app on your machine. Now you need to get it on the internet — 
 - **GitHub CLI** — Store and manage your code online. This lets you do it from the terminal instead of the website.
 - **Supabase CLI** — Supabase is your database, where the app stores user data. This lets you set up and change the database from your computer.
 - **Vercel CLI** — Vercel hosts the app on the internet. This lets you deploy and manage it from the terminal.
+- **Netlify CLI** — Netlify is another popular host (especially for static sites and Jamstack). Pick Vercel, Netlify, or both — the walkthrough asks at the start.
 - **Chrome DevTools MCP** — Lets Claude open a browser and look at your app directly. It can spot errors, read console logs, and take screenshots without you having to describe the problem.
 
 It assumes you already have code and a coding tool (Claude Code, Cursor, etc.). This gets you the infrastructure around it.
